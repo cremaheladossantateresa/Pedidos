@@ -8,69 +8,49 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root {
-            --fucsia: #ED068C;
-            --verde: #5FDB00;
-            --fondo: #F6F6F7;
-        }
+        :root { --fucsia: #ED068C; --verde: #5FDB00; --fondo: #F6F6F7; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--fondo); margin: 0; padding: 0; }
-        header { background-color: var(--fucsia); color: white; text-align: center; padding: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-weight: 700; text-transform: uppercase; }
-        .contenedor { max-width: 900px; margin: 30px auto; padding: 15px; text-align: center; }
-        #estado { color: var(--fucsia); font-weight: bold; margin-bottom: 25px; font-size: 1.2rem; }
-        .grid-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .card-cat { background: white; border: 3px solid var(--fucsia); color: var(--fucsia); padding: 30px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
-        .card-cat:hover { background-color: var(--fucsia); color: white; transform: translateY(-5px); }
+        header { background-color: var(--fucsia); color: white; text-align: center; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-weight: 700; text-transform: uppercase; font-size: 1.3rem; }
+        .contenedor { max-width: 900px; margin: 20px auto; padding: 15px; text-align: center; }
+        #estado { color: var(--fucsia); font-weight: bold; margin-bottom: 20px; }
+        .grid-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .card-cat { background: white; border: 3px solid var(--fucsia); color: var(--fucsia); padding: 25px 10px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-cat:hover { background-color: var(--fucsia); color: white; }
     </style>
 </head>
 <body>
-
-<header>
-    <h1>Crema Helados</h1>
-</header>
-
+<header><h1>Crema Helados</h1></header>
 <div class="contenedor">
-    <div id="estado">Cargando menú de Santa Teresa...</div>
+    <div id="estado">Conectando con Santa Teresa...</div>
     <div id="grid-principal" class="grid-categorias"></div>
 </div>
-
 <script>
-    // Configuración de tu base de datos (según tu captura)
-    const firebaseConfig = {
-        databaseURL: "https://pedidos-crema-helados-default-rtdb.firebaseio.com"
-    };
+    const firebaseConfig = { databaseURL: "https://pedidos-crema-helados-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
-    // Función para leer tus categorías reales
-    function cargarMenu() {
-        database.ref('Categorias').once('value').then((snapshot) => {
-            const categorias = snapshot.val();
+    function cargarCategorias() {
+        db.ref('Categorias').once('value').then((snapshot) => {
+            const data = snapshot.val();
             const grid = document.getElementById('grid-principal');
             const estado = document.getElementById('estado');
-            
             grid.innerHTML = "";
-            
-            if (categorias) {
-                estado.innerText = "¡Hola Efrén! Selecciona una Categoría:";
-                // Recorremos los datos que están en tu Firebase
-                for(let id in categorias) {
-                    const nombre = categorias[id].Nombre || categorias[id];
+            if (data) {
+                estado.innerText = "Selecciona una Categoría:";
+                Object.values(data).forEach(cat => {
                     const div = document.createElement('div');
                     div.className = 'card-cat';
-                    div.innerText = nombre;
+                    div.innerText = cat.Nombre || cat;
                     grid.appendChild(div);
-                }
-            } else {
-                estado.innerText = "No se encontraron categorías.";
+                });
             }
-        }).catch(error => {
-            document.getElementById('estado').innerText = "Error al conectar con Firebase";
-            console.error(error);
+        }).catch(err => {
+            document.getElementById('estado').innerText = "Error al cargar datos.";
+            console.error(err);
         });
     }
-
-    cargarMenu();
+    cargarCategorias();
 </script>
 </body>
 </html>
