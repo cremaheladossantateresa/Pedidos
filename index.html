@@ -8,23 +8,68 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        :root { --fucsia: #ED068C; --verde: #5FDB00; --fondo: #F6F6F7; }
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--fondo); margin: 0; padding: 0; }
-        header { background-color: var(--fucsia); color: white; text-align: center; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { margin: 0; font-weight: 700; text-transform: uppercase; font-size: 1.3rem; }
-        .contenedor { max-width: 900px; margin: 20px auto; padding: 15px; text-align: center; }
-        #estado { color: var(--fucsia); font-weight: bold; margin-bottom: 20px; }
-        .grid-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .card-cat { background: white; border: 3px solid var(--fucsia); color: var(--fucsia); padding: 25px 10px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card-cat:hover { background-color: var(--fucsia); color: white; }
+        :root {
+            --fucsia: #ED068C; /* Color corporativo principal */
+            --verde: #5FDB00;  /* Color de botones/confirmación */
+            --fondo: #F6F6F7;  /* Gris claro de fondo */
+            --texto-oscuro: #003354; /* Azul oscuro para títulos */
+        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--fondo); margin: 0; padding: 0; color: var(--texto-oscuro); }
+        
+        /* Encabezado con Logo */
+        .header-superior { background: white; padding: 10px 5%; display: flex; align-items: center; }
+        .logo { height: 60px; } /* Aquí irá tu logo */
+
+        /* Cinta de Título */
+        .cinta-pedidos { background-color: var(--fucsia); color: white; padding: 15px; text-align: center; font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        .contenedor { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .titulo-seccion { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: var(--texto-oscuro); }
+
+        /* Grid de Categorías Estilo Tarjeta */
+        .grid-categorias { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        
+        .card-categoria { 
+            background: white; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            cursor: pointer; 
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+        .card-categoria:hover { transform: translateY(-5px); }
+        
+        .img-placeholder { 
+            width: 100%; 
+            height: 180px; 
+            background-color: #ddd; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nombre-cat { padding: 15px; text-align: center; font-weight: 700; font-size: 1.1rem; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
-<header><h1>Crema Helados</h1></header>
-<div class="contenedor">
-    <div id="estado">Conectando con Santa Teresa...</div>
-    <div id="grid-principal" class="grid-categorias"></div>
+
+<div class="header-superior">
+    <img src="https://cremahelados.com/wp-content/uploads/2022/05/logo-crema-helados.png" alt="Logo" class="logo">
 </div>
+
+<div class="cinta-pedidos">
+    PEDIDOS CREMA HELADOS
+</div>
+
+<div class="contenedor">
+    <h2 class="titulo-seccion">Seleccione una Categoría</h2>
+    <div id="grid-principal" class="grid-categorias">
+        </div>
+</div>
+
 <script>
     const firebaseConfig = { databaseURL: "https://pedidos-crema-helados-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
@@ -34,20 +79,21 @@
         db.ref('Categorias').once('value').then((snapshot) => {
             const data = snapshot.val();
             const grid = document.getElementById('grid-principal');
-            const estado = document.getElementById('estado');
             grid.innerHTML = "";
+
             if (data) {
-                estado.innerText = "Selecciona una Categoría:";
-                Object.values(data).forEach(cat => {
-                    const div = document.createElement('div');
-                    div.className = 'card-cat';
-                    div.innerText = cat.Nombre || cat;
-                    grid.appendChild(div);
+                Object.keys(data).forEach(key => {
+                    const nombre = data[key].Nombre || data[key];
+                    // Creamos la tarjeta siguiendo el estilo de la imagen de referencia
+                    const card = document.createElement('div');
+                    card.className = 'card-categoria';
+                    card.innerHTML = `
+                        <div class="img-placeholder" style="background-image: url('https://via.placeholder.com/300x180?text=${nombre}')"></div>
+                        <div class="nombre-cat">${nombre}</div>
+                    `;
+                    grid.appendChild(card);
                 });
             }
-        }).catch(err => {
-            document.getElementById('estado').innerText = "Error al cargar datos.";
-            console.error(err);
         });
     }
     cargarCategorias();
