@@ -15,11 +15,12 @@
         }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--fondo); margin: 0; padding: 0; }
         header { background-color: var(--fucsia); color: white; text-align: center; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-weight: 700; text-transform: uppercase; font-size: 1.5rem; }
         .contenedor { max-width: 900px; margin: 20px auto; padding: 15px; }
-        #estado { text-align: center; color: var(--fucsia); font-weight: bold; margin-bottom: 20px; }
+        #estado { text-align: center; color: var(--fucsia); font-weight: bold; margin-bottom: 20px; font-size: 1.2rem; }
         .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
-        .card { background: white; border: 2px solid var(--fucsia); color: var(--fucsia); padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .card:hover { background-color: var(--fucsia); color: white; }
+        .card-categoria { background: white; border: 3px solid var(--fucsia); color: var(--fucsia); padding: 25px 15px; border-radius: 15px; text-align: center; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-categoria:hover { background-color: var(--fucsia); color: white; transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -29,42 +30,48 @@
 </header>
 
 <div class="contenedor">
-    <div id="estado">Cargando categorías...</div>
+    <div id="estado">Cargando menú de Santa Teresa...</div>
     <div id="grid-principal" class="grid-menu"></div>
 </div>
 
 <script>
-    // Configuración de tu Firebase
+    // Configuración directa de tu base de datos según tu captura
     const firebaseConfig = {
         databaseURL: "https://pedidos-crema-helados-default-rtdb.firebaseio.com"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Función para leer las categorías reales
-    function cargarCategorias() {
+    // Función para obtener las categorías reales de tu Firebase
+    function cargarMenu() {
         database.ref('Categorias').once('value').then((snapshot) => {
             const categorias = snapshot.val();
             const grid = document.getElementById('grid-principal');
             const estado = document.getElementById('estado');
             
             grid.innerHTML = "";
-            estado.innerText = "Seleccione una Categoría";
+            estado.innerText = "¡Hola Efrén! Selecciona una Categoría:";
 
-            for(let id in categorias) {
-                const item = categorias[id];
-                const div = document.createElement('div');
-                div.className = 'card';
-                div.innerText = item.Nombre || item;
-                grid.appendChild(div);
+            if (categorias) {
+                // Recorremos los datos que vimos en tu captura de Realtime Database
+                for(let id in categorias) {
+                    const nombreCat = categorias[id].Nombre || categorias[id];
+                    const div = document.createElement('div');
+                    div.className = 'card-categoria';
+                    div.innerText = nombreCat;
+                    // Por ahora solo mostraremos el nombre, luego daremos el siguiente paso
+                    grid.appendChild(div);
+                }
+            } else {
+                estado.innerText = "No se encontraron categorías en la base de datos.";
             }
         }).catch(error => {
-            document.getElementById('estado').innerText = "Error de conexión";
+            document.getElementById('estado').innerText = "Error de conexión con Firebase";
             console.error(error);
         });
     }
 
-    cargarCategorias();
+    cargarMenu();
 </script>
 </body>
 </html>
