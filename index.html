@@ -76,7 +76,7 @@
     const db = firebase.database();
 
     function cargarCategorias() {
-        db.ref('Categorias').once('value').then((snapshot) => {
+        db.ref('Categorias').on('value', (snapshot) => {
             const data = snapshot.val();
             const grid = document.getElementById('grid-principal');
             grid.innerHTML = "";
@@ -84,11 +84,20 @@
             if (data) {
                 Object.keys(data).forEach(key => {
                     const nombre = data[key].Nombre || data[key];
-                    // Creamos la tarjeta siguiendo el estilo de la imagen de referencia
+                    
+                    // Conexión con tu nueva imagen en GitHub
+                    let urlImagen;
+                    if (nombre.toLowerCase().includes("toro")) {
+                        urlImagen = "Toro.png"; // Usa el archivo que acabas de subir
+                    } else {
+                        // Marcador para las demás categorías
+                        urlImagen = `https://via.placeholder.com/400x300/f0f0f0/ED068C?text=${nombre}`;
+                    }
+                    
                     const card = document.createElement('div');
-                    card.className = 'card-categoria';
+                    card.className = 'card-cat';
                     card.innerHTML = `
-                        <div class="img-placeholder" style="background-image: url('https://via.placeholder.com/300x180?text=${nombre}')"></div>
+                        <div class="foto-cat" style="background-image: url('${urlImagen}')"></div>
                         <div class="nombre-cat">${nombre}</div>
                     `;
                     grid.appendChild(card);
