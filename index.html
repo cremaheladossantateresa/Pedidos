@@ -5,60 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos Crema Helados</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        /* Colores corporativos aplicados */
         :root {
-            --fucsia: #ED068C; /* Color principal logo */
-            --verde: #5FDB00;  /* Color secundario logo */
-            --fondo: #F6F6F7;  /* Gris claro de fondo */
+            --fucsia: #ED068C;
+            --verde: #5FDB00;
+            --fondo: #F6F6F7;
         }
-
-        body { 
-            font-family: 'Montserrat', sans-serif; 
-            background-color: var(--fondo); 
-            margin: 0; 
-            padding: 0; 
-            color: #333; 
-        }
-
-        header { 
-            background-color: var(--fucsia); 
-            color: white; 
-            text-align: center; 
-            padding: 25px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        h1 { margin: 0; font-weight: 700; text-transform: uppercase; }
-
-        .contenedor { 
-            max-width: 600px; 
-            margin: 50px auto; 
-            padding: 30px; 
-            background: white; 
-            border-radius: 20px; 
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .mensaje {
-            color: var(--fucsia);
-            font-weight: bold;
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-        }
-
-        .btn-espera {
-            background-color: var(--verde);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            text-transform: uppercase;
-        }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--fondo); margin: 0; padding: 0; }
+        header { background-color: var(--fucsia); color: white; text-align: center; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .contenedor { max-width: 900px; margin: 20px auto; padding: 15px; }
+        #estado { text-align: center; color: var(--fucsia); font-weight: bold; margin-bottom: 20px; }
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .card { background: white; border: 2px solid var(--fucsia); color: var(--fucsia); padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .card:hover { background-color: var(--fucsia); color: white; }
     </style>
 </head>
 <body>
@@ -68,10 +29,42 @@
 </header>
 
 <div class="contenedor">
-    <p class="mensaje">¡Bienvenido, Efrén!</p>
-    <p>Estamos construyendo el catálogo desde cero para Santa Teresa del Tuy.</p>
-    <button class="btn-espera">Diseño Iniciado</button>
+    <div id="estado">Cargando categorías...</div>
+    <div id="grid-principal" class="grid-menu"></div>
 </div>
 
+<script>
+    // Configuración de tu Firebase
+    const firebaseConfig = {
+        databaseURL: "https://pedidos-crema-helados-default-rtdb.firebaseio.com"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Función para leer las categorías reales
+    function cargarCategorias() {
+        database.ref('Categorias').once('value').then((snapshot) => {
+            const categorias = snapshot.val();
+            const grid = document.getElementById('grid-principal');
+            const estado = document.getElementById('estado');
+            
+            grid.innerHTML = "";
+            estado.innerText = "Seleccione una Categoría";
+
+            for(let id in categorias) {
+                const item = categorias[id];
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerText = item.Nombre || item;
+                grid.appendChild(div);
+            }
+        }).catch(error => {
+            document.getElementById('estado').innerText = "Error de conexión";
+            console.error(error);
+        });
+    }
+
+    cargarCategorias();
+</script>
 </body>
 </html>
